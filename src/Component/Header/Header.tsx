@@ -109,18 +109,19 @@ const Header: React.FC<HeaderPageProps> = ({ searchResult, setSearchResult }) =>
 
 
         {/* Center - Search */}
-        <div className="flex-1 mx-4">
-          <div className="flex items-center w-full border border-gray-300 rounded-lg px-3 py-1">
-            <MagnifyingGlassIcon className="h-5 w-5 text-gray-500" />
-            <input
-              type="text"
-              placeholder="Search..."
-              value={searchResult}
-              onChange={(e) => setSearchResult(e.target.value)}
-              className="ml-2 flex-grow outline-none text-sm bg-transparent"
-            />
-          </div>
-        </div>
+     <div className="flex-1 mx-2 sm:mx-4 max-w-[200px] sm:max-w-full">
+  <div className="flex items-center w-full border border-gray-300 rounded-lg px-2 sm:px-3 py-1">
+    <MagnifyingGlassIcon className="h-5 w-5 text-gray-500" />
+    <input
+      type="text"
+      placeholder="Search..."
+      value={searchResult}
+      onChange={(e) => setSearchResult(e.target.value)}
+      className="ml-2 flex-grow outline-none text-sm bg-transparent"
+    />
+  </div>
+</div>
+
 
         {/* Right - Desktop Menu */}
         <nav className="hidden md:flex items-center space-x-6 text-gray-700 font-medium relative">
@@ -276,4 +277,5 @@ const Header: React.FC<HeaderPageProps> = ({ searchResult, setSearchResult }) =>
 };
 
 export default Header;
+
 
