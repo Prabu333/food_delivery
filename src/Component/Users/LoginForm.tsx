@@ -13,23 +13,19 @@ import { useDispatch } from "react-redux";
 import { setUser } from "../../Redux/UserSlice";
 import type { UserState } from "../../Redux/UserSlice"; // type-only import
 
-
 // ---------------- Types ----------------
 interface LoginFormInputs {
-  username: string; // email
+  username: string; // email only
   password: string;
 }
 
 // ---------------- Validation ----------------
-const usernameRegex =
-  /^(?:\d{10}|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})$/;
-
 const loginSchema: yup.ObjectSchema<LoginFormInputs> = yup
   .object({
     username: yup
       .string()
-      .required("Username is required")
-      .matches(usernameRegex, "Must be valid email or mobile number"),
+      .email("Enter a valid email address")
+      .required("Email is required"),
     password: yup.string().required("Password is required"),
   })
   .required() as yup.ObjectSchema<LoginFormInputs>;
@@ -55,10 +51,10 @@ const LoginForm: React.FC = () => {
       // Fetch user details from Firestore
       const userDoc = await getDoc(doc(fireDB, "users", user.uid));
       if (userDoc.exists()) {
-         toast.success("Login successful!");
-        const userData = userDoc.data() as UserState; // ✅ Cast to UserState
-        dispatch(setUser(userData)); // Store in Redux
-        navigate("/"); // Navigate to homepage
+        toast.success("Login successful!");
+        const userData = userDoc.data() as UserState;
+        dispatch(setUser(userData));
+        navigate("/");
       } else {
         toast.error("User record not found in database");
       }
@@ -75,19 +71,16 @@ const LoginForm: React.FC = () => {
     }
   };
 
-  // ---------------- Forgot Password ----------------
- 
-
   return (
     <div className="max-w-md mx-auto mt-10 p-6 shadow-lg rounded-lg bg-white">
       <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {/* Username */}
+        {/* Email */}
         <div>
           <input
             {...register("username")}
-            placeholder="Email or Mobile Number"
+            placeholder="Email address"
             className="w-full border p-2 rounded"
           />
           <p className="text-red-500 text-sm">{errors.username?.message}</p>
@@ -114,8 +107,6 @@ const LoginForm: React.FC = () => {
       </form>
 
       <div className="flex justify-between mt-3 text-sm">
-      
-
         <span>
           Don't have an account?{" "}
           <button
@@ -126,12 +117,8 @@ const LoginForm: React.FC = () => {
           </button>
         </span>
       </div>
-
-      {/* <ToastContainer position="top-right" autoClose={3000} /> */}
     </div>
   );
 };
 
 export default LoginForm;
-
-

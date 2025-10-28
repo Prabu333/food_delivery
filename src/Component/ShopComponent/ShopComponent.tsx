@@ -18,13 +18,13 @@ import type { RootState } from "../../Redux/store";
 const FooterCart: React.FC<{ cartCount: number }> = ({ cartCount }) => {
   if (cartCount === 0) return null;
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-purple-600/80 p-4 flex justify-between items-center z-50">
-      <div className="text-white font-bold">
+    <div className="fixed bottom-0 left-0 w-full bg-purple-600/80 p-4 flex justify-between items-center z-50 backdrop-blur-md">
+      <div className="text-white font-bold text-lg drop-shadow-sm">
         {cartCount} item{cartCount > 1 ? "s" : ""} in Cart
       </div>
       <Link
         to="/cart"
-        className="bg-white/90 text-purple-700 font-bold px-4 py-2 rounded-lg hover:bg-white"
+        className="bg-white/90 text-purple-700 font-bold px-4 py-2 rounded-lg hover:bg-white shadow-md"
       >
         Go to Cart
       </Link>
@@ -55,7 +55,6 @@ const Shop: React.FC<ShopProps> = ({ searchResult }) => {
   const [items, setItems] = useState<FoodItem[]>([]);
   const [filtered, setFiltered] = useState<FoodItem[]>([]);
   const [loading, setLoading] = useState(false);
-
   const [cart, setCart] = useState<Record<string, number>>({});
   const [groupFilter, setGroupFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
@@ -65,7 +64,7 @@ const Shop: React.FC<ShopProps> = ({ searchResult }) => {
   const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.user);
 
-  // Load user cart
+  // Fetch cart
   useEffect(() => {
     if (user?.uid) {
       fetchCart(user.uid);
@@ -74,7 +73,22 @@ const Shop: React.FC<ShopProps> = ({ searchResult }) => {
     }
   }, [user?.uid]);
 
-  // Load products
+  const fetchCart = async (uid: string) => {
+    try {
+      const q = query(collection(fireDB, "cart"), where("userId", "==", uid));
+      const snapshot = await getDocs(q);
+      const cartData: Record<string, number> = {};
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        cartData[data.itemId] = data.quantity;
+      });
+      setCart(cartData);
+    } catch (err) {
+      console.error("Error fetching cart:", err);
+    }
+  };
+
+  // Fetch items
   useEffect(() => {
     const fetchItems = async () => {
       setLoading(true);
@@ -94,24 +108,6 @@ const Shop: React.FC<ShopProps> = ({ searchResult }) => {
     };
     fetchItems();
   }, []);
-
-  // Load cart
-  const fetchCart = async (uid: string) => {
-    try {
-      const q = query(collection(fireDB, "cart"), where("userId", "==", uid));
-      const snapshot = await getDocs(q);
-
-      const cartData: Record<string, number> = {};
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        cartData[data.itemId] = data.quantity;
-      });
-
-      setCart(cartData);
-    } catch (err) {
-      console.error("Error fetching cart:", err);
-    }
-  };
 
   const handleAdd = async (item: FoodItem) => {
     if (!user?.uid) {
@@ -173,10 +169,9 @@ const Shop: React.FC<ShopProps> = ({ searchResult }) => {
     }
   };
 
-  // Apply filters and sorting
+  // Filtering and sorting
   useEffect(() => {
     let data = [...items];
-
     if (groupFilter) data = data.filter((i) => i.foodGroup === groupFilter);
     if (searchResult)
       data = data.filter((item) =>
@@ -186,14 +181,11 @@ const Shop: React.FC<ShopProps> = ({ searchResult }) => {
           .includes(searchResult.toLowerCase())
       );
     if (typeFilter) data = data.filter((i) => i.foodType === typeFilter);
-
     data.sort((a, b) => {
       const valA = a[sortField] || 0;
       const valB = b[sortField] || 0;
-      if (sortOrder === "asc") return valA > valB ? 1 : -1;
-      return valA < valB ? 1 : -1;
+      return sortOrder === "asc" ? valA - valB : valB - valA;
     });
-
     setFiltered(data);
   }, [groupFilter, searchResult, typeFilter, sortField, sortOrder, items]);
 
@@ -201,16 +193,25 @@ const Shop: React.FC<ShopProps> = ({ searchResult }) => {
 
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-        <FiFilter /> Shop
-      </h2>
+      {/* 🌈 Stylish Header */}
+      <div className="relative mb-8 text-center py-6 rounded-2xl bg-gradient-to-r from-purple-500 via-pink-400 to-orange-400 text-white font-bold text-4xl shadow-lg tracking-wide backdrop-blur-lg">
+        <div className="flex justify-center items-center gap-3">
+          <FiFilter className="text-white text-4xl animate-spin-slow drop-shadow-md" />
+          <span className="font-serif italic drop-shadow-md">
+            Welcome to Shop
+          </span>
+        </div>
+        <p className="text-sm text-white/80 mt-2 font-light">
+          Discover delicious food with amazing offers 🍔✨
+        </p>
+      </div>
 
       {/* Filters */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <select
           value={groupFilter}
           onChange={(e) => setGroupFilter(e.target.value)}
-          className="border p-2 rounded"
+          className="border p-2 rounded focus:ring-2 focus:ring-purple-400"
         >
           <option value="">All Groups</option>
           <option value="Meals">Meals</option>
@@ -226,7 +227,7 @@ const Shop: React.FC<ShopProps> = ({ searchResult }) => {
         <select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value)}
-          className="border p-2 rounded"
+          className="border p-2 rounded focus:ring-2 focus:ring-purple-400"
         >
           <option value="">All Types</option>
           <option value="Veg">Veg</option>
@@ -237,7 +238,7 @@ const Shop: React.FC<ShopProps> = ({ searchResult }) => {
           <select
             value={sortField}
             onChange={(e) => setSortField(e.target.value as SortField)}
-            className="border p-2 rounded flex-1"
+            className="border p-2 rounded flex-1 focus:ring-2 focus:ring-purple-400"
           >
             <option value="foodPrice">Price</option>
             <option value="deliveryTime">Delivery Time</option>
@@ -248,7 +249,7 @@ const Shop: React.FC<ShopProps> = ({ searchResult }) => {
           <select
             value={sortOrder}
             onChange={(e) => setSortOrder(e.target.value as SortOrder)}
-            className="border p-2 rounded"
+            className="border p-2 rounded focus:ring-2 focus:ring-purple-400"
           >
             <option value="asc">⬆️ Asc</option>
             <option value="desc">⬇️ Desc</option>
@@ -256,7 +257,7 @@ const Shop: React.FC<ShopProps> = ({ searchResult }) => {
         </div>
       </div>
 
-      {/* Food Items */}
+      {/* Food Grid */}
       {loading ? (
         <p className="text-center">Loading items...</p>
       ) : filtered.length === 0 ? (
@@ -267,73 +268,75 @@ const Shop: React.FC<ShopProps> = ({ searchResult }) => {
             const hasDiscount =
               item.discountPercentage && item.discountPercentage > 0;
             const discountedPrice = hasDiscount
-              ? item.foodPrice - (item.foodPrice * (item.discountPercentage || 0)) / 100
+              ? item.foodPrice -
+                (item.foodPrice * (item.discountPercentage || 0)) / 100
               : item.foodPrice;
             const qty = cart[item.id] || 0;
 
             return (
-              <div
-                key={item.id}
-                className="bg-white shadow rounded-lg overflow-hidden hover:shadow-lg transition flex flex-col"
-              >
-                <Link to={`/item/${item.id}`}>
+              <Link to={`/item/${item.id}`} key={item.id}>
+                <div className="bg-white shadow-lg rounded-2xl overflow-hidden hover:shadow-2xl transition-all transform hover:scale-[1.02] backdrop-blur-sm">
                   <img
                     src={item.foodImage}
                     alt={item.foodName}
-                    className="w-full h-40 object-cover"
+                    className="w-full h-44 object-cover"
                   />
-                </Link>
-                <div className="p-4 flex flex-col flex-grow">
-                  <h3 className="font-bold">{item.foodName}</h3>
-                  <p className="text-sm text-gray-600">{item.foodHotel}</p>
-                  <p className="text-xs text-gray-500">
-                    Delivery: {item.deliveryTime} mins
-                  </p>
-
-                  <div className="mt-2 flex items-center gap-2">
-                    {hasDiscount ? (
-                      <>
-                        <p className="text-gray-500 text-sm line-through">
-                          ₹{item.foodPrice.toFixed(2)}
-                        </p>
-                        <p className="font-bold text-green-600">
-                          ₹{discountedPrice.toFixed(2)}
-                        </p>
-                        <span className="text-red-500 text-sm">
-                          ({item.discountPercentage}% OFF)
-                        </span>
-                      </>
-                    ) : (
-                      <span className="font-bold text-green-600">
-                        ₹{item.foodPrice.toFixed(2)}
-                      </span>
-                    )}
-                  </div>
-
-                  {item.rating && (
-                    <p className="text-yellow-600 text-sm mt-1">
-                      ⭐ {item.rating.toFixed(1)}
+                  <div className="p-4">
+                    <h3 className="font-semibold text-lg text-purple-700">
+                      {item.foodName}
+                    </h3>
+                    <p className="text-sm text-gray-600">{item.foodHotel}</p>
+                    <p className="text-xs text-gray-500">
+                      ⏱️ {item.deliveryTime} mins
                     </p>
-                  )}
-
-                  {/* Cart controls */}
-                  <div className="flex items-center gap-3 mt-3">
-                    <button
-                      onClick={() => handleRemove(item)}
-                      className="px-3 py-1 bg-red-500 text-white rounded-full hover:bg-red-600"
-                    >
-                      -
-                    </button>
-                    <span className="font-bold text-lg">{qty}</span>
-                    <button
-                      onClick={() => handleAdd(item)}
-                      className="px-3 py-1 bg-green-500 text-white rounded-full hover:bg-green-600"
-                    >
-                      +
-                    </button>
+                    <div className="mt-2 flex items-center gap-2">
+                      {hasDiscount ? (
+                        <>
+                          <p className="text-gray-500 text-sm line-through">
+                            ₹{item.foodPrice.toFixed(2)}
+                          </p>
+                          <p className="font-bold text-green-600">
+                            ₹{discountedPrice.toFixed(2)}
+                          </p>
+                          <span className="text-red-500 text-sm">
+                            ({item.discountPercentage}% OFF)
+                          </span>
+                        </>
+                      ) : (
+                        <span className="font-bold text-green-600">
+                          ₹{item.foodPrice.toFixed(2)}
+                        </span>
+                      )}
+                    </div>
+                    {item.rating && (
+                      <p className="text-yellow-600 text-sm mt-1">
+                        ⭐ {item.rating.toFixed(1)}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-3 mt-3">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleRemove(item);
+                        }}
+                        className="px-3 py-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                      >
+                        -
+                      </button>
+                      <span className="font-bold text-lg">{qty}</span>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleAdd(item);
+                        }}
+                        className="px-3 py-1 bg-green-500 text-white rounded-full hover:bg-green-600"
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>

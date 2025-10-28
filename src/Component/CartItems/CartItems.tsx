@@ -11,9 +11,9 @@ import {
 import { fireDB } from "../../firebase.config";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { FiPlus, FiMinus, FiTrash } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setSelectedItems } from "../../Redux/SeletedItemSlice"; // 👈 import Redux action
+import { setSelectedItems } from "../../Redux/SeletedItemSlice";
 
 interface CartItem {
   id: string;
@@ -34,9 +34,8 @@ const CartItems: React.FC = () => {
   const [selectedItems, setSelectedItemsState] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
   const auth = getAuth();
-  const dispatch = useDispatch(); // 👈 Redux dispatcher
+  const dispatch = useDispatch();
 
-  // Fetch cart when user logs in or out
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -49,7 +48,6 @@ const CartItems: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
-  // Fetch cart items from Firestore for the logged-in user
   const fetchCart = async (uid: string) => {
     try {
       setLoading(true);
@@ -71,7 +69,6 @@ const CartItems: React.FC = () => {
     }
   };
 
-  // Increment quantity
   const handleIncrement = async (item: CartItem) => {
     try {
       const newQty = item.quantity + 1;
@@ -86,7 +83,6 @@ const CartItems: React.FC = () => {
     }
   };
 
-  // Decrement quantity
   const handleDecrement = async (item: CartItem) => {
     try {
       const newQty = item.quantity - 1;
@@ -111,7 +107,6 @@ const CartItems: React.FC = () => {
     }
   };
 
-  // Remove item completely
   const handleRemove = async (item: CartItem) => {
     try {
       const ref = doc(fireDB, "cart", item.id);
@@ -128,12 +123,10 @@ const CartItems: React.FC = () => {
     }
   };
 
-  // Toggle checkbox selection
   const handleSelect = (id: string) => {
     setSelectedItemsState((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // Calculate selected total
   const totalSelected = cartItems.reduce((acc, item) => {
     if (!selectedItems[item.id]) return acc;
     const hasDiscount = item.discountPercentage && item.discountPercentage > 0;
@@ -145,7 +138,6 @@ const CartItems: React.FC = () => {
 
   const selectedCount = Object.values(selectedItems).filter(Boolean).length;
 
-  // Proceed to checkout
   const handleProceedToBuy = () => {
     if (selectedCount === 0) {
       alert("Please select at least one item to proceed.");
@@ -153,25 +145,29 @@ const CartItems: React.FC = () => {
     }
 
     const selectedCartItems = cartItems.filter((i) => selectedItems[i.id]);
-
-    // 👇 Save to Redux
     dispatch(setSelectedItems(selectedCartItems));
-
-    // 👇 Navigate to checkout (no need to pass via state)
     navigate("/checkout");
   };
 
   return (
     <div className="p-4 md:p-6 max-w-4xl mx-auto pb-32">
-      <h2 className="text-2xl font-bold mb-4 text-center md:text-left">🛒 My Cart</h2>
+      {/* 🎨 Styled Heading */}
+      <h2
+        className="text-3xl font-extrabold text-center mb-6 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 
+                   text-transparent bg-clip-text tracking-wide drop-shadow-md"
+      >
+        🛍️ My Cart
+      </h2>
+
+      <div className="h-1 w-32 bg-gradient-to-r from-purple-500 to-pink-400 mx-auto rounded-full mb-8" />
 
       {loading ? (
-        <p className="text-center">Loading cart...</p>
+        <p className="text-center text-gray-600 animate-pulse">Loading cart...</p>
       ) : cartItems.length === 0 ? (
-        <p className="text-center text-gray-500">No items in cart.</p>
+        <p className="text-center text-gray-500 italic">Your cart is empty 😢</p>
       ) : (
         <>
-          <div className="space-y-4">
+          <div className="grid gap-4">
             {cartItems.map((item) => {
               const hasDiscount = item.discountPercentage && item.discountPercentage > 0;
               const discountedPrice = hasDiscount
@@ -181,38 +177,36 @@ const CartItems: React.FC = () => {
               return (
                 <div
                   key={item.id}
-                  className="w-full flex flex-col sm:flex-row items-start gap-4 p-4 bg-white shadow rounded-lg relative group"
+                  className="flex flex-col sm:flex-row items-start gap-4 p-4 bg-gradient-to-br from-white via-purple-50 to-purple-100 shadow-lg rounded-2xl transition-transform transform hover:scale-[1.02]"
                 >
-                  {/* Checkbox */}
                   <input
                     type="checkbox"
                     checked={!!selectedItems[item.id]}
                     onChange={() => handleSelect(item.id)}
-                    className="w-5 h-5 self-start mt-1"
+                    className="w-5 h-5 mt-1 accent-purple-600"
                   />
 
-                  {/* Image */}
-                  <img
-                    src={item.foodImage}
-                    alt={item.foodName}
-                    className="w-full sm:w-20 h-40 sm:h-20 object-cover rounded-lg"
-                  />
+                  <Link to={`/item/${item.itemId}`}>
+                    <img
+                      src={item.foodImage}
+                      alt={item.foodName}
+                      className="w-full sm:w-24 h-44 sm:h-24 object-cover rounded-xl shadow-md border border-purple-200"
+                    />
+                  </Link>
 
-                  {/* Info */}
-                  <div className="flex-1 flex flex-col justify-between w-full">
-                    <div>
-                      <h3 className="font-bold">{item.foodName}</h3>
+                  <div className="flex-1 flex flex-col justify-between">
+                    <Link to={`/item/${item.itemId}`}>
+                      <h3 className="text-lg font-semibold text-purple-800">{item.foodName}</h3>
                       <p className="text-sm text-gray-600">{item.foodHotel}</p>
                       <p className="text-xs text-gray-500">
-                        Delivery: {item.deliveryTime} mins
+                        ⏱ Delivery: {item.deliveryTime} mins
                       </p>
-                    </div>
+                    </Link>
 
-                    {/* Price & Quantity */}
-                    <div className="mt-2 flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-2 w-full">
+                    <div className="mt-3 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                       <span
-                        className={`font-semibold ${
-                          hasDiscount ? "text-green-600" : "text-black"
+                        className={`font-bold ${
+                          hasDiscount ? "text-green-600" : "text-gray-800"
                         }`}
                       >
                         ₹{(discountedPrice * item.quantity).toFixed(2)}
@@ -221,14 +215,14 @@ const CartItems: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleDecrement(item)}
-                          className="p-1 bg-red-100 rounded hover:bg-red-200"
+                          className="p-2 bg-red-100 rounded-full hover:bg-red-200"
                         >
                           <FiMinus className="text-red-600" />
                         </button>
-                        <span className="font-semibold">{item.quantity}</span>
+                        <span className="font-semibold text-purple-700">{item.quantity}</span>
                         <button
                           onClick={() => handleIncrement(item)}
-                          className="p-1 bg-green-100 rounded hover:bg-green-200"
+                          className="p-2 bg-green-100 rounded-full hover:bg-green-200"
                         >
                           <FiPlus className="text-green-600" />
                         </button>
@@ -236,39 +230,39 @@ const CartItems: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Remove Button */}
                   <button
                     onClick={() => handleRemove(item)}
-                    className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition"
+                    className="absolute right-4 top-4 opacity-70 hover:opacity-100 transition"
                   >
-                    <FiTrash className="text-gray-400 hover:text-red-500" />
+                    <FiTrash className="text-gray-500 hover:text-red-600" />
                   </button>
                 </div>
               );
             })}
           </div>
 
-          {/* Total Section */}
-          <div className="mt-4 p-4 bg-purple-50 rounded-lg shadow flex justify-between items-center">
-            <span className="font-bold text-purple-700">
+          {/* 🧾 Total Section */}
+          <div className="mt-6 p-4 bg-gradient-to-r from-purple-100 to-pink-50 rounded-xl shadow flex justify-between items-center border border-purple-200">
+            <span className="font-bold text-purple-800">
               Selected ({selectedCount} item{selectedCount !== 1 ? "s" : ""})
             </span>
-            <span className="font-bold text-green-600">
+            <span className="font-extrabold text-green-700 text-lg">
               ₹{totalSelected.toFixed(2)}
             </span>
           </div>
 
-          {/* Proceed Button */}
-          <div className="mt-4 flex justify-center sm:fixed sm:bottom-4 sm:left-0 sm:w-full z-50">
+          {/* ✅ Proceed Button */}
+          <div className="mt-6 flex justify-center fixed bottom-4 left-0 w-full px-4 z-50">
             <button
               onClick={handleProceedToBuy}
               disabled={selectedCount === 0}
-              className={`bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition ${
-                selectedCount === 0 ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+              className={`w-full sm:w-auto bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 
+                          text-white font-bold py-3 px-8 rounded-xl shadow-lg transition-all duration-300 
+                          hover:scale-[1.03] hover:shadow-2xl ${
+                            selectedCount === 0 ? "opacity-50 cursor-not-allowed" : ""
+                          }`}
             >
-              Proceed to Buy ({selectedCount} item{selectedCount !== 1 ? "s" : ""}) - ₹
-              {totalSelected.toFixed(2)}
+              Proceed to Buy ({selectedCount}) – ₹{totalSelected.toFixed(2)}
             </button>
           </div>
         </>

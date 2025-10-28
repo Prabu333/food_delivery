@@ -11,9 +11,7 @@ import CartItems from "../../CartItems/CartItems";
 import BuyPremium from "./Customer/BuyPremium";
 import TotalOrders from "./TotalOrders";
 import TotalSales from "./RestaurantOwner/TotalSales";
-// import AddItem from "./RestaurantOwner/AddItem";
 
-// Dummy components
 const TotalUsers = () => <div>Total Users Content</div>;
 const PremiumMembers = () => <div>Premium Members Content</div>;
 const Notifications = () => <div>Notifications Content</div>;
@@ -64,7 +62,6 @@ const ProfileLayout: React.FC = () => {
           { label: "Change Password", path: "password", component: <ChangePassword /> },
         ];
       case "Restaurant Owner":
-
         return [
           { label: "Add Item", path: "additem", component: <AddItem /> },
           { label: "View Item", path: "viewitem", component: <ViewItems /> },
@@ -99,9 +96,18 @@ const ProfileLayout: React.FC = () => {
   if (isMobile) {
     return (
       <div className="p-4 bg-purple-50 min-h-screen">
-        <div className="font-bold text-gray-700 mb-3 text-center text-lg">
-          Hi, {user.firstName} {user.lastName} ({user.role})
+        {/* 🟣 Stylish Header Section */}
+        <div className="text-center mb-6">
+          <div className="inline-block px-6 py-3 rounded-2xl bg-gradient-to-r from-purple-500/70 via-pink-500/70 to-orange-400/70 backdrop-blur-md shadow-md">
+            <h2 className="text-2xl font-extrabold text-white tracking-wide">
+              {user.firstName} {user.lastName}
+            </h2>
+            <p className="text-sm text-white/90 italic font-semibold mt-1 bg-black/20 px-3 py-1 rounded-full inline-block">
+              {user.role}
+            </p>
+          </div>
         </div>
+
         <div className="divide-y divide-gray-200">
           {menuItems.map((item) => (
             <div key={item.path}>
@@ -135,10 +141,19 @@ const ProfileLayout: React.FC = () => {
   return (
     <div className="flex flex-col md:flex-row h-screen w-full bg-gray-100">
       {/* Sidebar */}
-      <div className="w-full md:w-1/4 p-4 bg-purple-400/60 backdrop-blur-md text-white overflow-y-auto rounded-r-2xl shadow-lg">
-        <div className="font-bold mb-4 text-center text-xl">
-          Hi, {user.firstName} {user.lastName} ({user.role})
+      <div className="w-full md:w-1/4 p-4 bg-gradient-to-b from-purple-500/80 via-pink-400/70 to-orange-300/60 backdrop-blur-md text-white overflow-y-auto rounded-r-2xl shadow-lg">
+        {/* 🟣 Stylish User Header */}
+        <div className="text-center mb-6">
+          <div className="inline-block px-5 py-4 rounded-2xl bg-white/20 shadow-inner backdrop-blur-md">
+            <h2 className="text-2xl font-extrabold text-white drop-shadow-sm">
+              {user.firstName} {user.lastName}
+            </h2>
+            <p className="text-sm text-purple-100 italic font-semibold mt-1 bg-purple-900/40 px-3 py-1 rounded-full inline-block">
+              {user.role}
+            </p>
+          </div>
         </div>
+
         <div className="divide-y divide-purple-300/40">
           {menuItems.map((item) => (
             <button
@@ -146,7 +161,7 @@ const ProfileLayout: React.FC = () => {
               className={`w-full text-left px-4 py-3 text-lg rounded-md my-1 transition-colors duration-200
                 ${
                   activeMenu === item.path
-                    ? "bg-purple-600/70 text-white font-semibold"
+                    ? "bg-purple-700/70 text-white font-semibold"
                     : "text-white font-medium hover:bg-purple-500/60"
                 }`}
               onClick={() => navigate(`/profile/${item.path}`)}
