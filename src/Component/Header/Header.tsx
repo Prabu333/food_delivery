@@ -98,11 +98,13 @@ const Header: React.FC<HeaderPageProps> = ({ searchResult, setSearchResult }) =>
       <div className="flex items-center justify-between relative">
         {/* Left - Logo */}
 <div className="flex items-center">
-  <img
-    src="https://i.ibb.co/Tx48LBdk/c5828aa3-ad65-4c0a-8bb0-12aeb0ec7790.png"
-    alt="company logo"
-    className="w-20 h-20 object-cover rounded-full border-2 border-blue-300 shadow-md"
-  />
+ <img
+  src="https://i.ibb.co/Tx48LBdk/c5828aa3-ad65-4c0a-8bb0-12aeb0ec7790.png"
+  alt="company logo"
+  className="w-16 h-16 object-cover rounded-full border-2 border-blue-300 shadow-md block"
+  style={{ minWidth: "64px", minHeight: "64px", display: "block" }}
+/>
+
 </div>
 
 
@@ -274,3 +276,4 @@ const Header: React.FC<HeaderPageProps> = ({ searchResult, setSearchResult }) =>
 };
 
 export default Header;
+
