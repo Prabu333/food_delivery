@@ -195,7 +195,7 @@ const FoodPage: React.FC<FoodPageProps> = ({ searchResult }) => {
             const qty = cart[item.id] || 0;
 
             return (
-              <Link to={`/item/${item.id}`}>
+             
               <div
   key={item.id}
   className="bg-white shadow-md rounded-xl overflow-hidden 
@@ -204,14 +204,15 @@ const FoodPage: React.FC<FoodPageProps> = ({ searchResult }) => {
              active:scale-105 focus:scale-105 
              flex flex-col"
 >
-                 
+                  <Link to={`/item/${item.id}`}>
                 <img
                   src={item.foodImage}
                   alt={item.foodName}
                   className="w-full h-44 object-cover"
                 />
-                
+                </Link>
                 <div className="p-4 flex flex-col flex-grow">
+                   <Link to={`/item/${item.id}`}>
                   <h3 className="font-bold text-gray-800">{item.foodName}</h3>
                   <p className="text-sm text-gray-600">{item.foodHotel}</p>
                   <p className="text-xs text-gray-500">Delivery: {item.deliveryTime} mins</p>
@@ -235,7 +236,7 @@ const FoodPage: React.FC<FoodPageProps> = ({ searchResult }) => {
                       </span>
                     )}
                   </div>
-
+                  </Link>
                   {item.rating && (
                     <p className="text-yellow-600 text-sm mt-1">
                       ⭐ {item.rating.toFixed(1)}
@@ -260,7 +261,7 @@ const FoodPage: React.FC<FoodPageProps> = ({ searchResult }) => {
                   </div>
                 </div>
               </div>
-              </Link>
+            
             );
           })}
         </div>
