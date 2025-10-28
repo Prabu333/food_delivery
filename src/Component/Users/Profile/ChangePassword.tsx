@@ -50,7 +50,7 @@ const ChangePassword: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md space-y-4">
-      <h2 className="text-xl font-bold text-center">Change Password</h2>
+      <h2 className="text-2xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 font-[Poppins] tracking-wide">Change Password</h2>
 
       <input
         type="password"

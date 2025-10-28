@@ -197,9 +197,13 @@ const FoodPage: React.FC<FoodPageProps> = ({ searchResult }) => {
             return (
               <Link to={`/item/${item.id}`}>
               <div
-                key={item.id}
-                className="bg-white shadow-md rounded-xl overflow-hidden hover:shadow-lg transition flex flex-col"
-              >
+  key={item.id}
+  className="bg-white shadow-md rounded-xl overflow-hidden 
+             transition-all duration-300 ease-in-out transform 
+             hover:scale-105 hover:shadow-2xl 
+             active:scale-105 focus:scale-105 
+             flex flex-col"
+>
                  
                 <img
                   src={item.foodImage}

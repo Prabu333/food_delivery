@@ -151,9 +151,10 @@ const CartItems: React.FC = () => {
 
   return (
     <div className="p-4 md:p-6 max-w-4xl mx-auto pb-32">
-      {/* 🎨 Styled Heading */}
+      {/* 🛒 Styled Heading */}
       <h2
-        className="text-3xl font-extrabold text-center mb-6 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 
+        className="text-3xl font-extrabold text-center mb-6 bg-gradient-to-r 
+                   from-purple-600 via-pink-500 to-orange-400 
                    text-transparent bg-clip-text tracking-wide drop-shadow-md"
       >
         🛍️ My Cart
@@ -177,7 +178,12 @@ const CartItems: React.FC = () => {
               return (
                 <div
                   key={item.id}
-                  className="flex flex-col sm:flex-row items-start gap-4 p-4 bg-gradient-to-br from-white via-purple-50 to-purple-100 shadow-lg rounded-2xl transition-transform transform hover:scale-[1.02]"
+                  className="flex flex-col sm:flex-row items-start gap-4 p-4 
+                             bg-gradient-to-br from-white via-purple-50 to-purple-100 
+                             shadow-lg rounded-2xl 
+                             transition-transform transform-gpu 
+                             hover:scale-105 active:scale-105 
+                             duration-300 ease-in-out"
                 >
                   <input
                     type="checkbox"

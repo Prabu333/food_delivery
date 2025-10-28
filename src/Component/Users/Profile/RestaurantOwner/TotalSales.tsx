@@ -21,14 +21,15 @@ interface Order {
   discountAmount?: number;
   orderDate: string;
   revenue: number;
-  orderBy: string; // full name from users collection
+  orderBy: string;
+  itemId:string;
 }
 
 const TotalSales: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const auth = getAuth();
-  const user = auth.currentUser; // the logged-in restaurant owner
+  const user = auth.currentUser;
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -38,7 +39,6 @@ const TotalSales: React.FC = () => {
           return;
         }
 
-        // 🔥 Fetch orders based on seller_id
         const orderRef = collection(fireDB, "orders");
         const q = query(orderRef, where("seller_id", "==", user.uid));
         const querySnapshot = await getDocs(q);
@@ -48,16 +48,13 @@ const TotalSales: React.FC = () => {
         for (const orderDoc of querySnapshot.docs) {
           const data = orderDoc.data();
 
-          // Format date (ISO string → DD/MM/YYYY)
           const formattedDate = data.orderDate
             ? new Date(data.orderDate).toLocaleDateString("en-GB")
             : "N/A";
 
-          // Calculate revenue (total - discount)
           const discount = data.discountAmount || 0;
           const revenue = (data.totalAmount || 0) - discount;
 
-          // Fetch user details (for "Ordered by")
           let orderByName = "Unknown User";
           if (data.userId) {
             try {
@@ -85,6 +82,7 @@ const TotalSales: React.FC = () => {
             orderDate: formattedDate,
             revenue,
             orderBy: orderByName,
+            itemId:data.itemId
           });
         }
 
@@ -118,7 +116,8 @@ const TotalSales: React.FC = () => {
 
   return (
     <div className="max-w-5xl mx-auto mt-6 px-4">
-      <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+      {/* 🌈 Updated Title */}
+      <h2 className="text-3xl font-extrabold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 font-[Poppins] tracking-wide">
         Restaurant Orders
       </h2>
 
@@ -126,9 +125,13 @@ const TotalSales: React.FC = () => {
         {orders.map((order) => (
           <div
             key={order.id}
-            className="flex items-center justify-between p-4 bg-white shadow-md rounded-xl hover:shadow-lg transition"
+            className="flex items-center justify-between p-4 bg-white shadow-md rounded-xl 
+                       transition-all duration-300 ease-in-out transform 
+                       hover:scale-105 hover:shadow-2xl 
+                       active:scale-105 focus:scale-105"
           >
             <div className="flex items-center space-x-4">
+              
               <img
                 src={order.itemImage}
                 alt={order.itemName}
@@ -152,12 +155,14 @@ const TotalSales: React.FC = () => {
                     ₹{order.totalAmount}
                   </p>
                   <p className="text-green-600 font-bold">
-                    ₹{order.revenue} <span className="text-gray-500 text-sm">(Revenue)</span>
+                    ₹{order.revenue}{" "}
+                    <span className="text-gray-500 text-sm">(Revenue)</span>
                   </p>
                 </div>
               ) : (
                 <p className="text-gray-800 font-semibold">
-                  ₹{order.revenue} <span className="text-gray-500 text-sm">(Revenue)</span>
+                  ₹{order.revenue}{" "}
+                  <span className="text-gray-500 text-sm">(Revenue)</span>
                 </p>
               )}
             </div>

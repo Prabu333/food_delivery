@@ -164,7 +164,7 @@ const AddItem: React.FC = () => {
 
   return (
     <div className="p-4 md:p-6 bg-white rounded-lg shadow-md max-w-2xl mx-auto my-4">
-      <h2 className="text-2xl font-bold mb-4 text-center md:text-left">
+      <h2 className="text-2xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 font-[Poppins] tracking-wide mb-2">
         Add Food Item
       </h2>
 
