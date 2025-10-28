@@ -28,7 +28,7 @@ const ManageAddress: React.FC = () => {
 
   const auth = getAuth();
 
-  // Fetch user ID
+  // ✅ Fetch user ID
   useEffect(() => {
     const unsub = auth.onAuthStateChanged((user) => {
       if (user) {
@@ -42,7 +42,7 @@ const ManageAddress: React.FC = () => {
     return () => unsub();
   }, []);
 
-  // Fetch addresses from Firestore
+  // ✅ Fetch addresses from Firestore
   const fetchAddresses = async (uid: string) => {
     setLoading(true);
     try {
@@ -61,7 +61,7 @@ const ManageAddress: React.FC = () => {
     }
   };
 
-  // Add new blank address
+  // ✅ Add new blank address
   const handleAddAddress = () => {
     if (!userId) {
       toast.error("Please login to add address");
@@ -71,10 +71,10 @@ const ManageAddress: React.FC = () => {
       ...addresses,
       { userId, address: "", addressType: "Home", isDefault: false },
     ]);
-    setHasUnsaved(true); // ✅ disable Add button until saved
+    setHasUnsaved(true); // disable Add button until saved
   };
 
-  // Update state values
+  // ✅ Update state values
   const handleChange = (
     index: number,
     field: keyof Address,
@@ -93,11 +93,19 @@ const ManageAddress: React.FC = () => {
     setHasUnsaved(true); // mark as unsaved whenever a field changes
   };
 
-  // Save / Update addresses in Firestore
+  // ✅ Save / Update addresses in Firestore (with validation)
   const handleSave = async () => {
     if (!userId) {
       toast.error("Please login to update addresses");
       return;
+    }
+
+    // 🛑 Validation: Ensure all addresses are filled
+    for (const addr of addresses) {
+      if (!addr.address.trim()) {
+        toast.warn("Please enter address for all fields before saving.");
+        return;
+      }
     }
 
     try {
@@ -129,13 +137,16 @@ const ManageAddress: React.FC = () => {
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow space-y-4">
       <h2 className="text-2xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 font-[Poppins] tracking-wide">
-        Manage Addresses</h2>
+        Manage Addresses
+      </h2>
 
       <button
         onClick={handleAddAddress}
-        disabled={hasUnsaved} // ✅ disabled if unsaved changes exist
+        disabled={hasUnsaved}
         className={`mb-4 px-4 py-2 rounded text-white ${
-          hasUnsaved ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
+          hasUnsaved
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-blue-500 hover:bg-blue-600"
         }`}
       >
         ➕ Add Address
@@ -151,13 +162,21 @@ const ManageAddress: React.FC = () => {
             key={addr.id || index}
             className="border p-4 rounded-lg shadow-sm space-y-2"
           >
+            {/* ✅ Address Field with Validation */}
             <textarea
               value={addr.address}
               onChange={(e) => handleChange(index, "address", e.target.value)}
               placeholder="Enter address..."
-              className="w-full border p-2 rounded"
+              className={`w-full border p-2 rounded ${
+                !addr.address.trim() ? "border-red-400" : "border-gray-300"
+              }`}
+              required
             />
+            {!addr.address.trim() && (
+              <p className="text-red-500 text-sm">Address is required</p>
+            )}
 
+            {/* ✅ Address Type Dropdown */}
             <select
               value={addr.addressType}
               onChange={(e) =>
@@ -170,6 +189,7 @@ const ManageAddress: React.FC = () => {
               <option value="Other">Other</option>
             </select>
 
+            {/* ✅ Default Address Radio */}
             <label className="flex items-center gap-2">
               <input
                 type="radio"
@@ -182,6 +202,7 @@ const ManageAddress: React.FC = () => {
         ))
       )}
 
+      {/* ✅ Save Button */}
       {addresses.length > 0 && (
         <button
           onClick={handleSave}
