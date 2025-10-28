@@ -274,14 +274,18 @@ const Shop: React.FC<ShopProps> = ({ searchResult }) => {
             const qty = cart[item.id] || 0;
 
             return (
-              <Link to={`/item/${item.id}`} key={item.id}>
+             <div
+               key={item.id}>
                 <div className="bg-white shadow-lg rounded-2xl overflow-hidden hover:shadow-2xl transition-all transform hover:scale-[1.02] backdrop-blur-sm">
+                  <Link to={`/item/${item.id}`}>
                   <img
                     src={item.foodImage}
                     alt={item.foodName}
                     className="w-full h-44 object-cover"
                   />
+                  </Link>
                   <div className="p-4">
+                    <Link to={`/item/${item.id}`}>
                     <h3 className="font-semibold text-lg text-purple-700">
                       {item.foodName}
                     </h3>
@@ -289,6 +293,7 @@ const Shop: React.FC<ShopProps> = ({ searchResult }) => {
                     <p className="text-xs text-gray-500">
                       ⏱️ {item.deliveryTime} mins
                     </p>
+                    </Link>
                     <div className="mt-2 flex items-center gap-2">
                       {hasDiscount ? (
                         <>
@@ -336,7 +341,7 @@ const Shop: React.FC<ShopProps> = ({ searchResult }) => {
                     </div>
                   </div>
                 </div>
-              </Link>
+            </div>
             );
           })}
         </div>
